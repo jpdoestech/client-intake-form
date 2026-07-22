@@ -370,11 +370,16 @@
   branchClientEl.addEventListener("change", updateBranchClientOtherVisibility);
 
   /* ============================================================
-   * Name auto-capitalization
+   * Auto-capitalization & Uppercase
    * ========================================================== */
   ["firstname", "middlename", "lastname"].forEach(id => {
     el(id).addEventListener("blur", e => { e.target.value = toTitleCase(e.target.value); });
   });
+  //occupationRank
+  ["occupationRank"].forEach(id => {
+    el(id).addEventListener("input", e => { e.target.value = e.target.value.toUpperCase(); });
+  });
+  
 
   /* ============================================================
    * Employer defaults toggle
