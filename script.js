@@ -377,7 +377,7 @@
   });
   //occupationRank
   ["occupationRank"].forEach(id => {
-    el(id).addEventListener("input", e => { e.target.value = e.target.value.toUpperCase(); });
+    el(id).addEventListener("blur", e => { e.target.value = toUpperCase(e.target.value); });
   });
   
 
