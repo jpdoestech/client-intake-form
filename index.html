@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Philippine Address Form</title>
+  <link rel="icon" href="https://ssl.gstatic.com/docs/forms/device_home/android_192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="gf-topbar"></div>
+
+  <div class="gf-container">
+
+    <!-- Header -->
+    <div class="gf-card gf-header-card">
+      <div class="gf-header-inner">
+        <p class="gf-title">Client Information Form</p>
+        <p class="gf-desc">
+          Please fill out your complete details. Fields marked with an asterisk
+          are required. Address dropdowns load automatically based on the level above them.
+        </p>
+      </div>
+      <p class="gf-required-note">* Required</p>
+    </div>
+
+    <div class="gf-card gf-lookup-card">
+      <button type="button" id="showLookupBtn" class="gf-link-btn gf-lookup-toggle">Already submitted? View or edit your response</button>
+
+      <div id="lookupPanel" class="gf-lookup-panel" style="display:none;">
+        <p class="gf-lookup-desc">Enter the email and reference code you received after submitting.</p>
+        <div class="gf-row">
+          <div class="gf-question">
+            <label class="gf-label">Email Address</label>
+            <input type="email" id="lookupEmail" placeholder="you@example.com">
+          </div>
+          <div class="gf-question">
+            <label class="gf-label">Reference Code</label>
+            <input type="text" id="lookupCode" placeholder="e.g. A7K2P9" maxlength="10">
+          </div>
+        </div>
+        <div class="gf-error-text" id="lookupError"></div>
+        <div class="gf-lookup-actions">
+          <button type="button" id="findEntryBtn" class="gf-submit-btn">
+            Find My Entry
+            <span class="gf-spinner" id="lookupSpinner"></span>
+          </button>
+          <button type="button" id="cancelLookupBtn" class="gf-clear-btn">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="formBanner" class="gf-banner error"></div>
+
+    <div id="editModeBanner" class="gf-banner gf-edit-banner" style="display:none;">
+      You're editing your existing submission — Reference Code <strong id="editModeCode"></strong>. Submitting will overwrite your previous answers.
+      <button type="button" id="exitEditModeBtn" class="gf-link-btn gf-exit-edit-btn">Start a new response instead</button>
+    </div>
+
+    <form id="mainForm" class="gf-card" novalidate>
+
+      <!-- ============================================================ -->
+      <p class="gf-section-title">Branch &amp; Client</p>
+
+      <div class="gf-question">
+        <label class="gf-label">Branch &amp; Client<span class="req">*</span></label>
+        <select id="branchClient"><option value="">Loading&hellip;</option></select>
+        <div class="gf-error-text" data-error-for="branchClient">Please select a branch &amp; client</div>
+      </div>
+
+      <div class="gf-question" id="branchClientOtherWrap" style="display:none;">
+        <label class="gf-label">Branch &amp; Client (specify)<span class="req">*</span></label>
+        <input type="text" id="branchClientOther" placeholder="e.g. DVO-SCPA">
+        <div class="gf-error-text" data-error-for="branchClientOther">Please enter a branch &amp; client</div>
+      </div>
+
+      <!-- ============================================================ -->
+      <p class="gf-section-title">Personal Information</p>
+
+      <div class="gf-question">
+        <label class="gf-label">First Name<span class="req">*</span></label>
+        <input type="text" id="firstname" autocomplete="given-name">
+        <div class="gf-hint">Auto-capitalized, e.g. "juan" becomes "Juan"</div>
+        <div class="gf-error-text" data-error-for="firstname">This is required</div>
+      </div>
+
+      <div class="gf-question">
+        <label class="gf-label">Middle Name</label>
+        <input type="text" id="middlename" autocomplete="additional-name">
+      </div>
+
+      <div class="gf-question">
+        <label class="gf-label">Last Name<span class="req">*</span></label>
+        <input type="text" id="lastname" autocomplete="family-name">
+        <div class="gf-error-text" data-error-for="lastname">This is required</div>
+      </div>
+
+      <div class="gf-row">
+        <div class="gf-question">
+          <label class="gf-label">Gender<span class="req">*</span></label>
+          <select id="gender">
+            <option value="">Select</option>
+            <option value="M">M</option>
+            <option value="F">F</option>
+          </select>
+          <div class="gf-error-text" data-error-for="gender">Please select a gender</div>
+        </div>
+
+        <div class="gf-question">
+          <label class="gf-label">Marital Status<span class="req">*</span></label>
+          <select id="maritalStatus">
+            <option value="">Select</option>
+            <option value="Single">Single</option>
+            <option value="Married">Married</option>
+            <option value="Widowed">Widowed</option>
+          </select>
+          <div class="gf-error-text" data-error-for="maritalStatus">Please select marital status</div>
+        </div>
+      </div>
+
+      <!-- ============================================================ -->
+      <p class="gf-section-title">Present Address</p>
+      <p class="gf-section-sub">Street/Village entered here is combined with the Barangay you select below when submitted.</p>
+
+      <div class="gf-question">
+        <label class="gf-label">Street / Village<span class="req">*</span></label>
+        <input type="text" id="street" placeholder="e.g. Narra St., Lower Village">
+        <div class="gf-error-text" data-error-for="street">This is required</div>
+      </div>
+
+      <div class="gf-question">
+        <label class="gf-label">Region<span class="req">*</span></label>
+        <select id="region"><option value="">Loading regions&hellip;</option></select>
+        <div class="gf-error-text" data-error-for="region">Please select a region</div>
+      </div>
+
+      <div class="gf-question">
+        <label class="gf-label">Province<span class="req">*</span></label>
+        <select id="province" disabled><option value="">Select Region first</option></select>
+        <div class="gf-error-text" data-error-for="province">Please select a province</div>
+      </div>
+
+      <div class="gf-question">
+        <label class="gf-label">City / Municipality<span class="req">*</span></label>
+        <select id="city" disabled><option value="">Select Province first</option></select>
+        <div class="gf-error-text" data-error-for="city">Please select a city/municipality</div>
+      </div>
+
+      <div class="gf-question">
+        <label class="gf-label">Barangay<span class="req">*</span></label>
+        <select id="barangay" disabled><option value="">Select City/Municipality first</option></select>
+        <div class="gf-error-text" data-error-for="barangay">Please select a barangay</div>
+      </div>
+
+      <div class="gf-row">
+        <div class="gf-question">
+          <label class="gf-label">Country<span class="req">*</span></label>
+          <select id="presentAddressCountry"><option value="">Loading&hellip;</option></select>
+          <div class="gf-error-text" data-error-for="presentAddressCountry">Please select a country</div>
+        </div>
+
+        <div class="gf-question">
+          <label class="gf-label">Postal Code<span class="req">*</span></label>
+          <input type="text" id="presentAddressPostal" maxlength="4" placeholder="e.g. 8000">
+          <div class="gf-hint">Auto-filled from City/Municipality — edit if incorrect</div>
+          <div class="gf-error-text" data-error-for="presentAddressPostal">Must be 4 digits</div>
+        </div>
+      </div>
+
+      <!-- ============================================================ -->
+      <p class="gf-section-title">Identification Numbers</p>
+
+      <div class="gf-row">
+        <div class="gf-question">
+          <label class="gf-label">TIN<span class="req">*</span></label>
+          <input type="text" id="tin" maxlength="9" placeholder="9 digits">
+          <div class="gf-checkbox-line">
+            <input type="checkbox" id="noTin">
+            <label for="noTin">I don't have a TIN (use default 055555555)</label>
+          </div>
+          <div class="gf-error-text" data-error-for="tin">Must be 9 digits</div>
+        </div>
+
+        <div class="gf-question">
+          <label class="gf-label">SSS/GSIS<span class="req">*</span></label>
+          <input type="text" id="sssGsis" maxlength="10" placeholder="10 digits">
+          <div class="gf-checkbox-line">
+            <input type="checkbox" id="noSssGsis">
+            <label for="noSssGsis">I don't have an SSS/GSIS number (use default 0555555555)</label>
+          </div>
+          <div class="gf-error-text" data-error-for="sssGsis">Must be 10 digits</div>
+        </div>
+      </div>
+
+      <!-- ============================================================ -->
+      <p class="gf-section-title">Birth Information</p>
+
+      <div class="gf-question">
+        <label class="gf-label">Place Of Birth<span class="req">*</span></label>
+        <input type="text" id="placeOfBirth" placeholder="e.g. Davao City / hospital or city of birth">
+        <div class="gf-error-text" data-error-for="placeOfBirth">This is required</div>
+      </div>
+
+      <div class="gf-row">
+        <div class="gf-question">
+          <label class="gf-label">Region Of Birth<span class="req">*</span></label>
+          <select id="regionOfBirth"><option value="">Loading regions&hellip;</option></select>
+          <div class="gf-hint">Used to load the correct provinces below</div>
+          <div class="gf-error-text" data-error-for="regionOfBirth">Please select a region</div>
+        </div>
+
+        <div class="gf-question">
+          <label class="gf-label">Province Of Birth<span class="req">*</span></label>
+          <select id="provinceOfBirth" disabled><option value="">Select Region Of Birth first</option></select>
+          <div class="gf-error-text" data-error-for="provinceOfBirth">Please select a province</div>
+        </div>
+      </div>
+
+      <div class="gf-question">
+        <label class="gf-label">Country Of Birth<span class="req">*</span></label>
+        <select id="countryOfBirth"><option value="">Loading&hellip;</option></select>
+        <div class="gf-error-text" data-error-for="countryOfBirth">Please select a country</div>
+      </div>
+
+      <div class="gf-row">
+        <div class="gf-question">
+          <label class="gf-label">Date of Birth<span class="req">*</span></label>
+          <input type="date" id="dateOfBirth">
+          <div class="gf-error-text" data-error-for="dateOfBirth">This is required</div>
+        </div>
+
+        <div class="gf-question">
+          <label class="gf-label">Nationality<span class="req">*</span></label>
+          <select id="nationality"><option value="">Loading&hellip;</option></select>
+          <div class="gf-error-text" data-error-for="nationality">Please select nationality</div>
+        </div>
+      </div>
+
+      <!-- ============================================================ -->
+      <p class="gf-section-title">Contact Details</p>
+
+      <div class="gf-row">
+        <div class="gf-question">
+          <label class="gf-label">Mobile No<span class="req">*</span></label>
+          <input type="tel" id="mobileNo" maxlength="11" placeholder="09161234567">
+          <div class="gf-error-text" data-error-for="mobileNo">Must be 11 digits, e.g. 09161234567</div>
+        </div>
+
+        <div class="gf-question">
+          <label class="gf-label">Residence Contact No</label>
+          <input type="tel" id="residenceContactNo" maxlength="11" placeholder="09161234567">
+          <div class="gf-error-text" data-error-for="residenceContactNo">Must be 11 digits, e.g. 09161234567</div>
+        </div>
+      </div>
+
+      <div class="gf-question">
+        <label class="gf-label">Preferred Email Address<span class="req">*</span></label>
+        <input type="email" id="email" autocomplete="email">
+        <div class="gf-error-text" data-error-for="email">This is required</div>
+      </div>
+
+      <!-- ============================================================ -->
+      <p class="gf-section-title">Employer Information</p>
+
+      <div class="gf-toggle-row">
+        <input type="checkbox" id="useEmployerDefaults" checked>
+        <label for="useEmployerDefaults">Use company default employer information (hides the fields below and fills them in automatically)</label>
+      </div>
+
+      <div class="gf-question">
+        <label class="gf-label">Occupation Rank<span class="req">*</span></label>
+        <input type="text" id="occupationRank" placeholder="e.g. Warehouse Associate">
+        <div class="gf-hint">Please add your current position/rank in the company — this is always entered by you, even when using company defaults.</div>
+        <div class="gf-error-text" data-error-for="occupationRank">This is required</div>
+      </div>
+
+      <div id="employerFields" class="gf-employer-fields">
+
+        <div class="gf-question">
+          <label class="gf-label">Employer Business Name</label>
+          <input type="text" id="employerBusinessName">
+        </div>
+
+        <div class="gf-row">
+          <div class="gf-question">
+            <label class="gf-label">Nature Of Work/Industry Type</label>
+            <select id="industryType"><option value="">Loading&hellip;</option></select>
+          </div>
+
+          <div class="gf-question">
+            <label class="gf-label">Employer Office No.</label>
+            <input type="text" id="employerOfficeNo">
+          </div>
+        </div>
+
+        <div class="gf-question">
+          <label class="gf-label">Employer Business Address</label>
+          <input type="text" id="employerBusinessAddress">
+        </div>
+
+        <div class="gf-question">
+          <label class="gf-label">Office Street No.</label>
+          <input type="text" id="officeStreet">
+        </div>
+
+        <div class="gf-row">
+          <div class="gf-question">
+            <label class="gf-label">Office City and Municipality</label>
+            <input type="text" id="officeCity">
+          </div>
+
+          <div class="gf-question">
+            <label class="gf-label">Office Province</label>
+            <input type="text" id="officeProvince">
+          </div>
+        </div>
+
+        <div class="gf-row">
+          <div class="gf-question">
+            <label class="gf-label">Office Country</label>
+            <input type="text" id="officeCountry" value="Philippines">
+          </div>
+
+          <div class="gf-question">
+            <label class="gf-label">Office Postal Code</label>
+            <input type="text" id="officePostal" maxlength="4">
+            <div class="gf-error-text" data-error-for="officePostal">Must be 4 digits</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ============================================================ -->
+      <p class="gf-section-title">Banking Preferences</p>
+
+      <div class="gf-question">
+        <label class="gf-label">Expected Monthly Banking Transaction<span class="req">*</span></label>
+        <input type="number" id="expectedMonthlyTransaction" min="10000" max="50000" step="1" placeholder="10,000 - 50,000">
+        <div class="gf-hint">Must be between &#8369;10,000 and &#8369;50,000</div>
+        <div class="gf-error-text" data-error-for="expectedMonthlyTransaction">Must be between 10,000 and 50,000</div>
+      </div>
+
+      <div class="gf-question">
+        <div class="gf-checkbox-line">
+          <input type="checkbox" id="enableEBanking">
+          <label for="enableEBanking">Enable E-Banking (internet banking)</label>
+        </div>
+      </div>
+
+      <div class="gf-question">
+        <div class="gf-checkbox-line">
+          <input type="checkbox" id="availCreditCard">
+          <label for="availCreditCard">Avail Credit Card</label>
+        </div>
+      </div>
+
+      <div class="gf-question">
+        <label class="gf-label">Preferred Mailing Address<span class="req">*</span></label>
+        <div class="gf-radio-group">
+          <label class="gf-radio-option"><input type="radio" name="preferredMailingAddress" value="O" checked> Office</label>
+          <label class="gf-radio-option"><input type="radio" name="preferredMailingAddress" value="R"> Residence</label>
+        </div>
+        <div class="gf-error-text" data-error-for="preferredMailingAddress">Please choose Office or Residence</div>
+      </div>
+
+      <div class="gf-footer">
+        <button type="button" id="submitBtn" class="gf-submit-btn">
+          <span id="submitBtnLabel">Submit</span>
+          <span class="gf-spinner" id="submitSpinner"></span>
+        </button>
+        <button type="button" id="clearBtn" class="gf-clear-btn">Clear form</button>
+      </div>
+
+    </form>
+
+    <div id="successCard" class="gf-card gf-success-card">
+      <div class="gf-success-icon">&#10003;</div>
+      <p class="gf-success-title" id="successTitle">Your response has been recorded</p>
+      <p class="gf-success-sub">Thank you for filling out the form.</p>
+
+      <div class="gf-reference-box">
+        <p class="gf-reference-label">Your Reference Code &mdash; save this!</p>
+        <div class="gf-reference-code-row">
+          <span id="successReferenceCode" class="gf-reference-code"></span>
+          <button type="button" id="copyReferenceBtn" class="gf-copy-btn">Copy</button>
+        </div>
+        <p class="gf-reference-hint">You'll need this code together with your email (<strong id="successEmail"></strong>) to view or edit your response later.</p>
+      </div>
+
+      <button type="button" id="submitAnotherBtn" class="gf-link-btn">Submit another response</button>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+
+</body>
+</html>
