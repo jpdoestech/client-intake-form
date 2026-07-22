@@ -374,12 +374,13 @@
    * ========================================================== */
   ["firstname", "middlename", "lastname"].forEach(id => {
     el(id).addEventListener("blur", e => { e.target.value = toTitleCase(e.target.value); });
-  });
+   });
   //occupationRank
   ["occupationRank"].forEach(id => {
-    el(id).addEventListener("blur", e => { e.target.value = toUpperCase(e.target.value); });
+    el(id).addEventListener("blur", ({ target }) => {
+      target.value = target.value.toUpperCase();
+    });
   });
-  
 
   /* ============================================================
    * Employer defaults toggle
