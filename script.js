@@ -5,7 +5,7 @@
    * Paste the /exec URL of your deployed Apps Script web app here
    * after deploying (Deploy > New deployment > Web app).
    * ========================================================== */
-  const API_URL = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+  const API_URL = "https://script.google.com/macros/s/AKfycbx3mPttPjfu6O0G1QVAZUg0wV1yR-ssyTaWzXIrqq_F6DfLO1CPGtG46RzVCSLdpOeRDg/exec";
 
   /**
    * GET-style call to the Apps Script API — used for all read-only
