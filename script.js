@@ -445,7 +445,7 @@
   /* ============================================================
    * Auto-capitalization & Uppercase
    * ========================================================== */
-  ["firstname", "middlename", "lastname", "placeOfBirth"].forEach(id => {
+  ["firstname", "middlename", "lastname", "placeOfBirth", "street"].forEach(id => {
     el(id).addEventListener("blur", e => { e.target.value = toTitleCase(e.target.value); });
    });
   //occupationRank
