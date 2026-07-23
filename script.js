@@ -2,14 +2,14 @@
 
   /* ============================================================
    * Apps Script API config
-   * Paste the /exec URL of your deployed Apps Script web app here
-   * after deploying (Deploy > New deployment > Web app).
+   * Only form config (branch/client, nationality, employer
+   * defaults, etc.), submission, and entry lookup go through
+   * this — the address cascade below is served as static files.
    * ========================================================== */
   const API_URL = "https://script.google.com/macros/s/AKfycbx3mPttPjfu6O0G1QVAZUg0wV1yR-ssyTaWzXIrqq_F6DfLO1CPGtG46RzVCSLdpOeRDg/exec";
 
   /**
-   * GET-style call to the Apps Script API — used for all read-only
-   * lookups (dropdown data, address cascade, entry lookup).
+   * GET-style call to the Apps Script API.
    * `params` is a plain object of query-string parameters.
    */
   function apiGet(action, params) {
@@ -41,27 +41,100 @@
     });
   }
 
+  /* ============================================================
+   * Static address data (regions/provinces/cities/barangays)
+   * Lives in data/*.json right next to this file on GitHub Pages
+   * — no Apps Script round trip, no quota, no CORS.
+   *
+   * regions.json / provinces.json / cities.json are loaded once
+   * each and cached in memory for the rest of the session.
+   * barangays/{cityCode}.json is loaded lazily per city, since
+   * there are 1,600+ of those files (~1KB each).
+   * ========================================================== */
+  const DATA_BASE = "data";
+
+  let _regionsPromise = null;
+  let _provincesPromise = null;
+  let _citiesPromise = null;
+  const _barangaysPromiseByCity = {};
+
+  function fetchJson(path) {
+    return fetch(path).then(res => {
+      if (!res.ok) throw new Error(`Could not load ${path} (${res.status})`);
+      return res.json();
+    });
+  }
+
+  function loadRegions() {
+    if (!_regionsPromise) _regionsPromise = fetchJson(`${DATA_BASE}/regions.json`);
+    return _regionsPromise;
+  }
+  function loadProvinces() {
+    if (!_provincesPromise) _provincesPromise = fetchJson(`${DATA_BASE}/provinces.json`);
+    return _provincesPromise;
+  }
+  function loadCities() {
+    if (!_citiesPromise) _citiesPromise = fetchJson(`${DATA_BASE}/cities.json`);
+    return _citiesPromise;
+  }
+  function loadBarangaysForCity(cityCode) {
+    if (!_barangaysPromiseByCity[cityCode]) {
+      _barangaysPromiseByCity[cityCode] = fetchJson(`${DATA_BASE}/barangays/${cityCode}.json`);
+    }
+    return _barangaysPromiseByCity[cityCode];
+  }
+
   /**
    * Drop-in replacement for the old google.script.run bridge.
-   * Routes each server function name to the right GET/POST call
-   * and param shape, so the rest of this file barely changed.
+   * Address-cascade actions resolve from the local static files
+   * above; everything else still goes to Apps Script.
    */
   function callApi(fnName, ...args) {
     switch (fnName) {
       case "getInitialFormData":
         return apiGet("getInitialFormData");
+
       case "getRegions":
-        return apiGet("getRegions");
-      case "getProvinces":
-        return apiGet("getProvinces", { regionCode: args[0] });
-      case "getCities":
-        return apiGet("getCities", { provinceCode: args[0] });
-      case "getCitiesForRegion":
-        return apiGet("getCitiesForRegion", { regionCode: args[0] });
+        return loadRegions();
+
+      case "getProvinces": {
+        const regionCode = args[0];
+        return loadProvinces().then(all =>
+          all.filter(p => p.regionCode === regionCode)
+             .map(p => ({ code: p.code, name: p.name }))
+        );
+      }
+
+      case "getCities": {
+        const provinceCode = args[0];
+        return loadCities().then(all =>
+          all.filter(c => c.provinceCode === provinceCode)
+             .map(c => ({ code: c.code, name: c.name }))
+        );
+      }
+
+      case "getCitiesForRegion": {
+        const regionCode = args[0];
+        return loadCities().then(all =>
+          all.filter(c => c.regionCode === regionCode && !c.provinceCode)
+             .map(c => ({ code: c.code, name: c.name }))
+        );
+      }
+
       case "getBarangays":
-        return apiGet("getBarangays", { cityCode: args[0] });
-      case "getPostalCode":
-        return apiGet("getPostalCode", { cityName: args[0] });
+        return loadBarangaysForCity(args[0]);
+
+      case "getPostalCode": {
+        // args[0] is the city/municipality CODE (exact match against
+        // the PSGC code baked into cities.json) — not a name, so
+        // there's no fuzzy matching involved at all anymore.
+        const cityCode = args[0];
+        return loadCities().then(all => {
+          const match = all.find(c => c.code === cityCode);
+          return (match && match.zip) || "";
+        });
+      }
+
       case "getEntryByReference":
         return apiGet("getEntryByReference", { email: args[0], code: args[1] });
       case "submitForm":
@@ -186,13 +259,14 @@
   }
 
   /* ============================================================
-   * Initial load — one round trip for everything
+   * Initial load — form config from Apps Script + regions from
+   * the local static file, fetched in parallel.
    * ========================================================== */
-  callApi("getInitialFormData")
-    .then(data => {
+  Promise.all([callApi("getInitialFormData"), callApi("getRegions")])
+    .then(([data, regions]) => {
 
-      fillSelect(regionEl, data.regions, "Select Region");
-      fillSelect(regionOfBirthEl, data.regions, "Select Region");
+      fillSelect(regionEl, regions, "Select Region");
+      fillSelect(regionOfBirthEl, regions, "Select Region");
 
       fillSimpleSelect(presentAddressCountryEl, data.standardValues.country, "Select Country", "Philippines");
       fillSimpleSelect(countryOfBirthEl, data.standardValues.country, "Select Country", "Philippines");
@@ -307,16 +381,15 @@
       .then(barangays => { barangayEl.disabled = false; fillSelect(barangayEl, barangays, "Select Barangay"); })
       .catch(err => { showBanner("Could not load barangays."); console.error(err); });
 
-    // Auto-fill postal code based on the selected city/municipality name
-    const cityName = selectedName(cityEl);
-    if (cityName) {
-      presentAddressPostalEl.value = "";
-      callApi("getPostalCode", cityName)
-        .then(zip => {
-          if (zip && !postalManuallyEdited) presentAddressPostalEl.value = zip;
-        })
-        .catch(() => { /* silent — field stays editable */ });
-    }
+    // Auto-fill postal code based on the selected city/municipality's
+    // exact PSGC code (matched directly against cities.json — no name
+    // matching involved).
+    presentAddressPostalEl.value = "";
+    callApi("getPostalCode", cityCode)
+      .then(zip => {
+        if (zip && !postalManuallyEdited) presentAddressPostalEl.value = zip;
+      })
+      .catch(() => { /* silent — field stays editable */ });
   }
 
   regionEl.addEventListener("change", onRegionChange);
