@@ -74,35 +74,25 @@
     gap: 16px;
   }
 
-    /* ------------------------------------------------------------
-     * Fix: uneven row heights in two-column rows (.gf-row)
-     *
-     * When one field has hint text or a checkbox note below it and
-     * its sibling doesn't — or one wraps to two lines and the other
-     * doesn't (e.g. Country vs. Postal Code, TIN vs. SSS/GSIS) — the
-     * two columns end up different heights and the row looks jagged.
-     *
-     * This makes each column a flex column and anchors whichever
-     * hint/checkbox line is present to the BOTTOM of the row, so
-     * both sides always end flush with each other regardless of
-     * how much text either one has.
-     *
-     * Append this to the end of style.css.
-     * ------------------------------------------------------------ */
-    
-    .gf-row .gf-question {
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .gf-row .gf-question .gf-hint,
-    .gf-row .gf-question .gf-checkbox-line {
-      margin-top: auto;
-    }
-    /*end of code*/
-
   .gf-row .gf-question { flex: 1; padding-left: 0; padding-right: 0; }
   .gf-row { padding: 0 24px; }
+
+  /* Two-column rows (Country/Postal Code, TIN/SSS-GSIS, etc.) can
+     end up with mismatched heights when only one side has a hint
+     or checkbox note below it, or when a checkbox label wraps to
+     two lines on one side but not the other. Making each column
+     a flex column and anchoring its trailing hint/checkbox line
+     to the bottom keeps both sides flush regardless of how much
+     text either one has. */
+  .gf-row .gf-question {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .gf-row .gf-question .gf-hint,
+  .gf-row .gf-question .gf-checkbox-line {
+    margin-top: auto;
+  }
 
   .gf-label { font-size: 14px; margin-bottom: 8px; display: block; }
 
@@ -125,6 +115,15 @@
     border-bottom: 1px solid var(--gf-border);
     background: transparent;
     padding: 10px 4px;
+    /* Fixed height + line-height instead of letting each element
+       size itself from its own content — browsers (Chrome on
+       Windows especially) apply slightly different intrinsic
+       padding to <select> vs <input>, even with appearance:none,
+       which throws off the underline alignment between two
+       fields sitting side by side in a .gf-row. Locking both to
+       the same box height removes that discrepancy. */
+    height: 44px;
+    line-height: 24px;
     outline: none;
     appearance: none;
     -webkit-appearance: none;
