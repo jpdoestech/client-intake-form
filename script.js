@@ -323,6 +323,7 @@
    * ========================================================== */
   function onRegionChange() {
     const regionCode = regionEl.value;
+    const regionName = selectedName(regionEl);
     resetSelect(provinceEl, "Loading provinces\u2026");
     resetSelect(cityEl, "Select Province first");
     resetSelect(barangayEl, "Select City/Municipality first");
@@ -338,8 +339,14 @@
           provinceEl.disabled = false;
           fillSelect(provinceEl, provinces, "Select Province");
         } else {
+          // Province-less region (e.g. NCR): use the region itself as
+          // the "province" value so the field still carries a value
+          // instead of submitting empty and failing the required-
+          // field check server-side.
           provinceLevelExists = false;
-          resetSelect(provinceEl, "N/A for this region");
+          fillSelect(provinceEl, [{ code: regionCode, name: regionName }], "N/A for this region");
+          provinceEl.value = regionCode;
+          provinceEl.disabled = true;
           loadCitiesForRegion(regionCode);
         }
       })
@@ -445,7 +452,7 @@
   /* ============================================================
    * Auto-capitalization & Uppercase
    * ========================================================== */
-  ["firstname", "middlename", "lastname", "placeOfBirth"].forEach(id => {
+  ["firstname", "middlename", "lastname", "placeOfBirth", "street"].forEach(id => {
     el(id).addEventListener("blur", e => { e.target.value = toTitleCase(e.target.value); });
    });
   //occupationRank
@@ -688,6 +695,7 @@
     // Present Address: Region -> Province -> City -> Barangay
     if (data.regionCode) {
       regionEl.value = data.regionCode;
+      const regionName = selectedName(regionEl);
       try {
         const provinces = await gsRun("getProvinces", data.regionCode);
         if (provinces && provinces.length) {
@@ -697,7 +705,9 @@
           if (data.provinceCode) provinceEl.value = data.provinceCode;
         } else {
           provinceLevelExists = false;
-          resetSelect(provinceEl, "N/A for this region");
+          fillSelect(provinceEl, [{ code: data.regionCode, name: regionName }], "N/A for this region");
+          provinceEl.value = data.regionCode;
+          provinceEl.disabled = true;
         }
 
         const cities = (provinceLevelExists && data.provinceCode)
@@ -861,7 +871,7 @@
 
       street: el("street").value.trim(),
       regionCode: regionEl.value,
-      provinceCode: provinceEl.value,
+      provinceCode: provinceLevelExists ? provinceEl.value : regionEl.value,
       cityCode: cityEl.value,
       cityName: selectedName(cityEl),
       provinceName: provinceLevelExists ? selectedName(provinceEl) : "N/A",

@@ -120,11 +120,10 @@
 
       <!-- ============================================================ -->
       <p class="gf-section-title">Present Address</p>
-      <p class="gf-section-sub">Street/Village entered here is combined with the Barangay you select below when submitted.</p>
-
       <div class="gf-question">
         <label class="gf-label">Street / Village<span class="req">*</span></label>
-        <input type="text" id="street" placeholder="e.g. Narra St., Lower Village">
+        <input type="text" id="street" placeholder="e.g. Narra St., Lower Tiguman Village">
+        <div class="gf-hint">Please enter: (Street / Village / Lot / Block / Purok) only.</div>
         <div class="gf-error-text" data-error-for="street">This is required</div>
       </div>
 
@@ -198,6 +197,7 @@
       <div class="gf-question">
         <label class="gf-label">Place Of Birth<span class="req">*</span></label>
         <input type="text" id="placeOfBirth" placeholder="e.g. Davao City / hospital or city of birth">
+        <div class="gf-hint">Lugar kung saan ka pinanganak.</div>
         <div class="gf-error-text" data-error-for="placeOfBirth">This is required</div>
       </div>
 
@@ -205,13 +205,14 @@
         <div class="gf-question">
           <label class="gf-label">Region Of Birth<span class="req">*</span></label>
           <select id="regionOfBirth"><option value="">Loading regions&hellip;</option></select>
-          <div class="gf-hint">Used to load the correct provinces below</div>
+          <div class="gf-hint">Rehiyon kung saan ka pinanganak.</div>
           <div class="gf-error-text" data-error-for="regionOfBirth">Please select a region</div>
         </div>
 
         <div class="gf-question">
           <label class="gf-label">Province Of Birth<span class="req">*</span></label>
           <select id="provinceOfBirth" disabled><option value="">Select Region Of Birth first</option></select>
+          <div class="gf-hint">Probinsya kung saan ka pinanganak.</div>
           <div class="gf-error-text" data-error-for="provinceOfBirth">Please select a province</div>
         </div>
       </div>
@@ -241,9 +242,10 @@
 
       <div class="gf-row">
         <div class="gf-question">
-          <label class="gf-label">Mobile No<span class="req">*</span> <div class="gf-hint"> (Make sure you entered a correct/updated mobile number as this will be used for account confirmation.) </div></label>
+          <label class="gf-label">Mobile No<span class="req">*</span></label>
           <input type="tel" id="mobileNo" maxlength="11" placeholder="09161234567">
           <div class="gf-error-text" data-error-for="mobileNo">Must be 11 digits, e.g. 09161234567</div>
+          <div class="gf-hint">Make sure you entered a correct/updated Mobile Number as this will be used for account confirmation.</div>
         </div>
 
         <div class="gf-question">
@@ -260,13 +262,15 @@
       </div>
 
       <!-- ============================================================ -->
+      <!-- ===== Hide the toggle to it always set to yes ========== -->
+      
       <p class="gf-section-title">Employer Information</p>
-
+      
       <div class="gf-toggle-row">
-        <input type="checkbox" id="useEmployerDefaults" checked>
-        <label for="useEmployerDefaults">Use company default employer information (hides the fields below and fills them in automatically)</label>
+        <input type="checkbox" id="useEmployerDefaults" checked disabled>
+        <label for="useEmployerDefaults">Use company default employer information.</label>
       </div>
-
+      
       <div class="gf-question">
         <label class="gf-label">Occupation Rank<span class="req">*</span></label>
         <input type="text" id="occupationRank" placeholder="e.g. Warehouse Associate">
@@ -352,13 +356,14 @@
           <input type="checkbox" id="availCreditCard">
           <label for="availCreditCard">Avail Credit Card</label>
         </div>
+        <div class="gf-hint">By checking this box, you are applying to <strong>borrow money</strong> on credit. Please <strong>do not click or check this</strong> if you do not want a credit card.</div>
       </div>
 
       <div class="gf-question">
         <label class="gf-label">Preferred Mailing Address<span class="req">*</span></label>
         <div class="gf-radio-group">
           <label class="gf-radio-option"><input type="radio" name="preferredMailingAddress" value="O" checked> Office</label>
-          <label class="gf-radio-option"><input type="radio" name="preferredMailingAddress" value="R"> Residence</label>
+          <label class="gf-radio-option"><input type="radio" name="preferredMailingAddress" value="R" disabled> Residence</label>
         </div>
         <div class="gf-error-text" data-error-for="preferredMailingAddress">Please choose Office or Residence</div>
       </div>
